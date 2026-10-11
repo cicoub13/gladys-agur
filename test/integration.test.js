@@ -102,7 +102,7 @@ test('a poll reports the connection, publishes the devices and the states of cre
   assert.equal(gladys.calls.discovered[0][0].name, 'Agur I21FA123456');
   assert.deepEqual(
     gladys.calls.states.map((state) => state.device_feature_external_id.split(':').pop()),
-    ['index', 'index', 'consumption', 'amount_due'],
+    ['index', 'index', 'consumption', 'index', 'amount_due'],
   );
   assert.equal(timers.nextDelay, POLL_INTERVAL_MS);
 });
@@ -114,7 +114,7 @@ test('states of devices the user did not create are not sent', async () => {
   assert.equal(gladys.calls.states.length, 0);
 });
 
-test('the next poll only sends what is new, and the devices again', async () => {
+test('the next poll sends the new readings, the current values and the devices again', async () => {
   const later = contract({
     readings: [
       ...contract().readings,
@@ -131,9 +131,10 @@ test('the next poll only sends what is new, and the devices again', async () => 
   gladys.calls.states.length = 0;
 
   await integration.poll();
+  // The new reading (index, consumption), then the current index and amount due.
   assert.deepEqual(
     gladys.calls.states.map(({ state }) => state),
-    [125, 15],
+    [125, 15, 125, -5],
   );
   assert.equal(gladys.calls.discovered.length, 2);
   // Still connected: no new status.
@@ -204,19 +205,20 @@ test('a device created after the first poll gets its full history right away', a
   await integration.applyConfig(CONFIG);
   assert.equal(gladys.calls.states.length, 0);
 
+  const datedCount = () => gladys.calls.states.filter((state) => state.created_at).length;
   gladys.devices = [{ external_id: DEVICE_ID }];
   await integration.handleDeviceCreated({ external_id: DEVICE_ID });
-  assert.equal(gladys.calls.states.length, 4);
+  assert.equal(datedCount(), 3);
 
-  // Deleted then created again: everything is sent again.
+  // Deleted then created again: the history is sent again.
   integration.handleDeviceDeleted({ external_id: DEVICE_ID });
   await integration.handleDeviceCreated({ external_id: DEVICE_ID });
-  assert.equal(gladys.calls.states.length, 8);
+  assert.equal(datedCount(), 6);
 
   // A foreign device does not reset ours.
   integration.handleDeviceDeleted({ external_id: 'ext:other:thing:1' });
   await integration.handleDeviceCreated({ external_id: 'ext:other:thing:1' });
-  assert.equal(gladys.calls.states.length, 8);
+  assert.equal(datedCount(), 6);
 });
 
 test('a failure while sending a new device history is logged, not thrown', async () => {
@@ -226,16 +228,17 @@ test('a failure while sending a new device history is logged, not thrown', async
   await integration.handleDeviceCreated({ external_id: DEVICE_ID });
 });
 
-test('the same account after a reconnection is not sent again; another account is', async () => {
+test('the history of the same account is not sent again after a reconnection; of another one is', async () => {
   const { gladys, integration } = setup();
+  const datedCount = () => gladys.calls.states.filter((state) => state.created_at).length;
   await integration.applyConfig(CONFIG);
-  assert.equal(gladys.calls.states.length, 4);
+  assert.equal(datedCount(), 3);
 
   await integration.applyConfig(CONFIG);
-  assert.equal(gladys.calls.states.length, 4);
+  assert.equal(datedCount(), 3);
 
   await integration.applyConfig({ ...CONFIG, username: 'other@example.com' });
-  assert.equal(gladys.calls.states.length, 8);
+  assert.equal(datedCount(), 6);
 });
 
 test('a poll resolving after a config change publishes nothing', async () => {

@@ -23,6 +23,13 @@
 // Readings and invoices are published with their own dates (`created_at`):
 // Gladys files them in the history at the right place and keeps the most
 // recent one as the current value.
+//
+// But Gladys shows a value older than 48 hours as "No recent value", and a
+// reading is weeks old. So the latest index and invoice, and the amount due,
+// are also published undated (i.e. "now") at every poll: they stay displayed,
+// and their history reads as a "last known value" staircase. Not the
+// consumption and the daily average: repeated, they would read as new periods
+// in the charts, which is where they are meant to be followed.
 // -----------------------------------------------------------------------------
 
 import {
@@ -193,12 +200,20 @@ export function buildStates(gladys, contract) {
   for (const invoice of contract.invoices) {
     states.push(dated(FEATURE_KEYS.INVOICE, round(invoice.amount, 2), invoice.issuedAt));
   }
+
+  // The current values, undated, after the history (see the header).
+  const current = (key, state) => ({ device_feature_external_id: ids.feature(key), state });
+  const latestReading = contract.readings.at(-1);
+  if (latestReading) {
+    states.push(current(FEATURE_KEYS.INDEX, round(latestReading.m3, 3)));
+  }
+  const latestInvoice = contract.invoices.at(-1);
+  if (latestInvoice) {
+    states.push(current(FEATURE_KEYS.INVOICE, round(latestInvoice.amount, 2)));
+  }
   if (contract.balance !== null) {
-    states.push({
-      device_feature_external_id: ids.feature(FEATURE_KEYS.AMOUNT_DUE),
-      // `|| 0`: a zero balance must not become -0.
-      state: round(-contract.balance, 2) || 0,
-    });
+    // `|| 0`: a zero balance must not become -0.
+    states.push(current(FEATURE_KEYS.AMOUNT_DUE, round(-contract.balance, 2) || 0));
   }
   return states;
 }

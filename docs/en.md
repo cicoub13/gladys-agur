@@ -61,6 +61,19 @@ ones of the **latest reading**, not real-time consumption; they change with
 each new reading or invoice. The integration reads the customer website every
 6 hours, and 30 minutes after a failure.
 
+### Showing the values
+
+Gladys shows "No recent value" for a value older than 48 hours. To avoid it,
+the meter index, the invoice amount and the amount due are published again at
+every read: they stay displayed in a "Devices" dashboard box, and their chart
+reads as a staircase (latest known value).
+
+The **consumption** and the **average daily consumption** are about a past
+period: they are not published again, so that their charts keep one value per
+reading. They therefore show "No recent value" in a "Devices" box: follow them
+with a **chart** over the last year (bars for the consumption, a line for the
+average).
+
 ## Troubleshooting
 
 Error messages show in the connection status of the integration and under the

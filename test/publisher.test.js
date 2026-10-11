@@ -44,15 +44,15 @@ test('dated states are sent once, then only the later ones', async () => {
   );
 });
 
-test('undated states are sent when their value changes', async () => {
+test('undated states are sent every time, so Gladys keeps them recent', async () => {
   const gladys = createFakeGladys();
   const { publisher } = createPublisher(gladys);
-  await publisher.publish([undated('balance', 10)]);
-  await publisher.publish([undated('balance', 10)]);
+  await publisher.publish([undated('balance', 10), dated('index', 1, 1)]);
+  await publisher.publish([undated('balance', 10), dated('index', 1, 1)]);
   await publisher.publish([undated('balance', 12)]);
   assert.deepEqual(
     gladys.calls.states.map((state) => state.state),
-    [10, 12],
+    [10, 1, 10, 12],
   );
 });
 

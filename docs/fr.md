@@ -64,6 +64,20 @@ réel ; elles changent à chaque nouveau relevé ou nouvelle facture.
 L'intégration interroge l'espace client toutes les 6 heures, et 30 minutes après
 un échec.
 
+### Afficher les valeurs
+
+Gladys affiche « Pas de valeur récente » pour une valeur de plus de 48 heures.
+Pour l'éviter, l'index, le montant de la facture et le montant à payer sont
+republiés à chaque interrogation : ils restent affichés dans un bloc
+« Appareils » du tableau de bord, et leur graphique prend la forme d'un
+escalier (dernière valeur connue).
+
+La **consommation** et la **consommation moyenne journalière** portent sur une
+période passée : elles ne sont pas republiées, pour que leurs graphiques
+gardent une valeur par relevé. Elles s'affichent donc « Pas de valeur récente »
+dans un bloc « Appareils » : suivez-les avec un **graphique** sur l'année
+(barres pour la consommation, courbe pour la moyenne).
+
 ## Dépannage
 
 Les messages d'erreur s'affichent dans l'état de connexion de l'intégration et
