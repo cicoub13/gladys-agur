@@ -1,10 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import { DEFAULT_CONFIG, PROVIDERS } from '../src/config.js';
 
 // Device categories in the store catalog need Gladys 4.86.
 const MIN_GLADYS_VERSION = '>=4.86.0';
+// Store limit of the cover image (800 x 534 PNG or JPEG).
+const MAX_COVER_BYTES = 150 * 1024;
 // INTEGRATION_CATALOG_CATEGORIES in the core. The manifest schema has no enum
 // (an unknown key is dropped with a warning), so a typo here would silently
 // land the integration in the uncategorized bucket.
@@ -104,4 +106,10 @@ test('the user docs exist in both languages, long enough for the store', () => {
     const doc = readFileSync(new URL(`../docs/${language}.md`, import.meta.url), 'utf8');
     assert.ok(doc.length >= 300, `docs/${language}.md is too short`);
   }
+});
+
+test('the cover image points at a real file within the store limit', () => {
+  assert.ok(manifest.cover_image.endsWith('/cover.png'));
+  const size = statSync(new URL('../cover.png', import.meta.url)).size;
+  assert.ok(size <= MAX_COVER_BYTES, `cover.png is ${size} bytes, over ${MAX_COVER_BYTES}`);
 });
