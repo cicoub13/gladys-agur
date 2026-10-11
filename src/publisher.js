@@ -5,7 +5,9 @@
 // - Dated states (readings, invoices): a feature remembers the date of the
 //   last state sent; only later ones go out. The first publication of a device
 //   is therefore its whole history (up to three years of readings).
-// - Undated states (amount due): sent when the value changed.
+// - Undated states (the current index, invoice and amount due): sent every
+//   time, even unchanged. That is what keeps them "recent" in Gladys, which
+//   shows a value older than 48 hours as "No recent value" (see devices.js).
 // - The host API takes at most 100 states per request and 300 per minute per
 //   integration: batches of 100, spaced so that no rolling minute exceeds
 //   `maxPerMinute` (kept below 300, the core counts in fixed windows).
@@ -40,8 +42,6 @@ export class StatePublisher {
     this.sleep = sleep;
     // featureExternalId -> time (ms) of the last dated state sent.
     this.watermarks = new Map();
-    // featureExternalId -> last undated value sent.
-    this.lastValues = new Map();
     // [{ at, count }] of the batches sent in the last minute.
     this.sent = [];
     this.queue = Promise.resolve();
@@ -73,11 +73,9 @@ export class StatePublisher {
    * publisher.forget(`${device.external_id}:`);
    */
   forget(prefix) {
-    for (const map of [this.watermarks, this.lastValues]) {
-      for (const id of [...map.keys()]) {
-        if (id.startsWith(prefix)) {
-          map.delete(id);
-        }
+    for (const id of [...this.watermarks.keys()]) {
+      if (id.startsWith(prefix)) {
+        this.watermarks.delete(id);
       }
     }
   }
@@ -85,13 +83,12 @@ export class StatePublisher {
   /** Forget everything (configuration changed). */
   reset() {
     this.watermarks.clear();
-    this.lastValues.clear();
   }
 
   pending(states) {
-    return states.filter(({ device_feature_external_id: id, state, created_at: createdAt }) => {
+    return states.filter(({ device_feature_external_id: id, created_at: createdAt }) => {
       if (createdAt === undefined) {
-        return this.lastValues.get(id) !== state;
+        return true;
       }
       const watermark = this.watermarks.get(id);
       return watermark === undefined || Date.parse(createdAt) > watermark;
@@ -110,10 +107,8 @@ export class StatePublisher {
       await this.gladys.publishStates(batch);
       this.sent.push({ at: this.now(), count: batch.length });
       // Recorded only once sent: a failed batch is sent again next time.
-      for (const { device_feature_external_id: id, state, created_at: createdAt } of batch) {
-        if (createdAt === undefined) {
-          this.lastValues.set(id, state);
-        } else {
+      for (const { device_feature_external_id: id, created_at: createdAt } of batch) {
+        if (createdAt !== undefined) {
           this.watermarks.set(id, Date.parse(createdAt));
         }
       }

@@ -104,7 +104,7 @@ test('every feature is a read-only sensor with history, in a standard category a
   }
 });
 
-test('readings and invoices are dated, the amount due is not', () => {
+test('readings and invoices are dated, then the current values are repeated undated', () => {
   const ids = idsOf(gladys, contract.id);
   const states = buildStates(gladys, contract);
   const of = (key) =>
@@ -126,6 +126,8 @@ test('readings and invoices are dated, the amount due is not', () => {
       state: 172,
       created_at: '2026-04-30T00:00:00.000Z',
     },
+    // The latest one again, "now": Gladys hides values older than 48 h.
+    { device_feature_external_id: ids.feature('index'), state: 172 },
   ]);
   // Agur's figure when it gives one, else the index difference.
   assert.deepEqual(
@@ -142,7 +144,12 @@ test('readings and invoices are dated, the amount due is not', () => {
       state: 87.65,
       created_at: '2026-03-15T00:00:00.000Z',
     },
+    { device_feature_external_id: ids.feature('invoice'), state: 87.65 },
   ]);
+  // Periods, never repeated undated (they would read as new periods).
+  for (const key of ['consumption', 'daily_average']) {
+    assert.ok(of(key).every((state) => state.created_at !== undefined));
+  }
   // Liters per day, rounded; none when Agur gives no average.
   assert.deepEqual(
     of('daily_average').map(({ state, created_at: createdAt }) => [state, createdAt]),
@@ -185,6 +192,6 @@ test('no consumption across a meter replacement, no amount due when unknown', ()
     balance: null,
   });
   const keys = states.map((state) => state.device_feature_external_id.split(':').pop());
-  assert.deepEqual(keys, ['index', 'index', 'index', 'consumption']);
+  assert.deepEqual(keys, ['index', 'index', 'index', 'consumption', 'index']);
   assert.equal(states[3].state, 40.25);
 });

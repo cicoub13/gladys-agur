@@ -59,11 +59,16 @@ Project-specific notes. Generic rules (SDK contract, commands, kit-owned files, 
   with the meter).
 - `index`, `consumption`, `daily_average` and `invoice` are published with `created_at` = reading
   / issue date: the core files them in history (deduplicated on feature + date + value) and keeps
-  the most recent as `last_value`. `amount_due` is undated.
+  the most recent as `last_value`.
+- The front shows "No recent value" when `last_value_changed` is older than 48 h (core setting
+  `DEVICE_STATE_NUMBER_OF_HOURS_BEFORE_STATE_IS_OUTDATED`), and a dated state sets it to its own
+  date. So the latest `index` and `invoice`, and `amount_due`, are ALSO published undated at every
+  poll (history: "last known value" staircase). `consumption` and `daily_average` never are: a
+  repeated period would read as a new one in the charts (users follow them in charts; documented).
 
 ## Publisher (`src/publisher.js`)
 
-- Per feature: dated -> watermark (last `created_at` sent), undated -> last value. Batches of 100,
+- Per feature: dated -> watermark (last `created_at` sent), undated -> always sent. Batches of 100,
   at most 250 states per rolling minute (core: 300 per fixed minute). Publications are queued.
 - In memory only: a restart resends the history (the core ignores duplicates). `forget(prefix)` on
   device created/deleted, `reset()` on account change.

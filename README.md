@@ -27,6 +27,20 @@ and ported from the Home Assistant integration
 - Polling every 6 hours (Agur only exposes the billing readings, every few
   months, and the invoices), 30 minutes after a failure; suspended after a
   refused password, so the account does not get locked.
+- The latest index, invoice amount and amount due are published again at every
+  poll, so Gladys never shows them as "No recent value" (values older than
+  48 h); the consumption and the daily average, per period, are meant for
+  charts.
+
+## Screenshots
+
+A dashboard with the current values and one year of readings (quarterly here):
+
+![An Agur water meter on a Gladys dashboard](docs/images/dashboard.png)
+
+Each contract of the account in the Discovery tab:
+
+![Two Agur contracts in the Discovery tab](docs/images/discovery.png)
 
 ## Install
 
