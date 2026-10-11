@@ -1,7 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, statSync } from 'node:fs';
-import { DEFAULT_CONFIG, PROVIDERS } from '../src/config.js';
 
 // Device categories in the store catalog need Gladys 4.86.
 const MIN_GLADYS_VERSION = '>=4.86.0';
@@ -71,13 +70,8 @@ test('the password is a secret field, the credentials are required', () => {
   assert.equal(configField('username').required, true);
 });
 
-test('the provider options and default are the ones the code knows', () => {
-  const field = configField('provider');
-  assert.deepEqual(
-    field.options.map((option) => option.value),
-    Object.keys(PROVIDERS),
-  );
-  assert.equal(field.default, DEFAULT_CONFIG.provider);
+test('there is no water utility to choose: Agur only', () => {
+  assert.equal(configField('provider'), undefined);
 });
 
 test('the actions the code registers are the ones the manifest declares', () => {

@@ -10,7 +10,6 @@
 // Usage: put your credentials in .env (ignored by git), then `npm run smoke`.
 //   AGUR_USERNAME=...   email of the customer website
 //   AGUR_PASSWORD=...   password
-//   AGUR_PROVIDER=...   optional: agur (default), grandparissud or eauparis
 // -----------------------------------------------------------------------------
 
 import { AgurClient, describeError } from '../src/agur/client.js';
@@ -19,7 +18,6 @@ import { PROVIDERS, normalizeConfig } from '../src/config.js';
 import { buildDevice, buildStates } from '../src/devices.js';
 
 const config = normalizeConfig({
-  provider: process.env.AGUR_PROVIDER,
   username: process.env.AGUR_USERNAME,
   password: process.env.AGUR_PASSWORD,
 });

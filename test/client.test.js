@@ -41,19 +41,6 @@ test('logs in with the portal keys, then the credentials, then reads with the au
   assert.match(contracts.search, /nbElements=25/);
 });
 
-test('uses the host of the chosen water utility', async () => {
-  const fetch = createFakeFetch();
-  const client = new AgurClient({
-    provider: PROVIDERS.eauparis,
-    username: 'me@example.com',
-    password: PASSWORD,
-    fetchImpl: fetch,
-  });
-  await client.login();
-  assert.equal(fetch.calls[0].url, 'https://agence.eaudeparis.fr/webapi/Acces/generateToken');
-  assert.equal(fetch.calls[0].body.ClientId, 'AEL-TOKEN-EDP-PRD');
-});
-
 test('keeps the session until shortly before it expires, then opens a new one', async () => {
   let now = SESSION_END - 60 * 60 * 1000;
   const fetch = createFakeFetch();
@@ -194,9 +181,9 @@ test('the client never exposes the password', () => {
 test('describeError gives a bilingual message for every kind', () => {
   const kinds = ['auth', 'session', 'timeout', 'http', 'invalid_response', 'unreachable'];
   for (const kind of kinds) {
-    const message = describeError(new AgurError(kind, 'x', { status: 500 }), 'Eau de Paris');
-    assert.match(message.en, /Eau de Paris/);
-    assert.match(message.fr, /Eau de Paris/);
+    const message = describeError(new AgurError(kind, 'x', { status: 500 }), 'Agur');
+    assert.match(message.en, /Agur/);
+    assert.match(message.fr, /Agur/);
   }
   const auth = describeError(new AgurError('auth', 'x', { serverMessage: 'Compte bloqué' }));
   assert.match(auth.fr, /\(Compte bloqué\)/);

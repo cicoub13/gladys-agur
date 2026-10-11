@@ -2,8 +2,7 @@
 
 Follow your [Agur](https://ael.agur.fr) water contract from
 [Gladys Assistant](https://gladysassistant.com): meter index, consumption,
-invoices and amount due. Also works with **Grand Paris Sud** and **Eau de
-Paris**, which run the same customer website. Built as an external integration
+invoices and amount due. Built as an external integration
 running in its own container, on the JavaScript SDK
 [`@gladysassistant/integration-sdk`](https://github.com/GladysAssistant/integration-sdk-js),
 and ported from the Home Assistant integration
@@ -51,11 +50,10 @@ Each contract of the account in the Discovery tab:
 
 ## Configuration
 
-| Field         | Description                                      |
-| ------------- | ------------------------------------------------ |
-| Water utility | Agur (default), Grand Paris Sud or Eau de Paris. |
-| Email         | Login of the customer website.                   |
-| Password      | Password of the customer website.                |
+| Field    | Description                         |
+| -------- | ----------------------------------- |
+| Email    | Login of the Agur customer website. |
+| Password | Password of that website.           |
 
 The **Test the connection** button checks the credentials and resumes updates
 suspended by a refused password. Full user documentation, including
@@ -94,8 +92,7 @@ npm start
 
 ### Check against a real account
 
-Put `AGUR_USERNAME`, `AGUR_PASSWORD` (and optionally `AGUR_PROVIDER`:
-`grandparissud` or `eauparis`) in `.env` (ignored by git), then run
+Put `AGUR_USERNAME` and `AGUR_PASSWORD` in `.env` (ignored by git), then run
 `npm run smoke`. It logs in, reads every contract like a poll does, and prints
 what would be published along with the field names of each raw answer.
 
@@ -105,7 +102,7 @@ what would be published along with the field names of each raw answer.
 ├─ index.js                          # wires the SDK handlers to AgurIntegration, no logic
 ├─ src/
 │  ├─ integration.js                 # AgurIntegration: client, polling, snapshot, every SDK handler
-│  ├─ config.js                      # water utilities (hosts, portal keys), config defaults and coercion
+│  ├─ config.js                      # Agur portal (host, keys), config defaults and coercion
 │  ├─ devices.js                     # one Gladys device per contract, its 5 features and states
 │  ├─ publisher.js                   # sends only new states, paced under the host API rate limit
 │  ├─ poller.js                      # self-scheduling polling loop
@@ -130,4 +127,8 @@ templates in the kit instead.
 
 ## License
 
-Apache-2.0. Not affiliated with Agur, Grand Paris Sud or Eau de Paris.
+Apache-2.0. Not affiliated with Agur.
+
+Grand Paris Sud and Eau de Paris run the same customer portal software but are
+not supported: Grand Paris Sud refuses scripted requests, and Eau de Paris has
+not been tested with a real account.
