@@ -21,8 +21,10 @@ Project-specific notes. Generic rules (SDK contract, commands, kit-owned files, 
 
 ## Agur API (`src/agur/client.js`)
 
-- Private API of the portal web page, `https://<host>/webapi`, ported from tbouron/ha-agur. Hosts
-  and public portal keys per utility in `PROVIDERS` (`src/config.js`).
+- Private API of the portal web page, `https://<host>/webapi`, ported from tbouron/ha-agur. Host
+  and public portal keys in `PROVIDERS` (`src/config.js`): Agur only. Grand Paris Sud and Eau de
+  Paris (same portal software, listed by ha-agur) are left out: GPS answers HTTP 412 "requêtes
+  scriptées interdites" to generateToken, EDP was never tested with a real account.
 - Login: `POST /Acces/generateToken` (header `Token: <accessKey>`, body ConversationId/ClientId/
   AccessKey) -> `{token, expirationDate}` (2 h, checked live 2026-10-11); then
   `POST /Utilisateur/authentification` `{identifiant, motDePasse}` with `Token: <session>` ->
@@ -75,5 +77,5 @@ Project-specific notes. Generic rules (SDK contract, commands, kit-owned files, 
 
 ## Config and storage
 
-- Keys: `provider` (`agur` | `grandparissud` | `eauparis`, else `agur`), `username` (trimmed),
+- Keys: `provider` (not in the manifest any more, always `agur`), `username` (trimmed),
   `password` (secret). Nothing is written to `/data`.

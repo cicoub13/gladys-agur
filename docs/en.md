@@ -4,9 +4,6 @@ Follow your [Agur](https://ael.agur.fr) water contract in Gladys: meter index,
 consumption between two readings, average daily consumption, invoice amounts
 and amount still due, with their history.
 
-The integration also works with the other water utilities that use the same
-customer website: **Grand Paris Sud** and **Eau de Paris**.
-
 ## Requirements
 
 - An account on the customer website of your water utility, with at least one
@@ -18,11 +15,10 @@ customer website: **Grand Paris Sud** and **Eau de Paris**.
 
 Open the configuration screen of the integration and fill in:
 
-| Field             | Description                                        |
-| ----------------- | -------------------------------------------------- |
-| **Water utility** | Agur (default), Grand Paris Sud or Eau de Paris.   |
-| **Email**         | The email you log in with on the customer website. |
-| **Password**      | The password of the customer website.              |
+| Field        | Description                                             |
+| ------------ | ------------------------------------------------------- |
+| **Email**    | The email you log in with on the Agur customer website. |
+| **Password** | The password of the customer website.                   |
 
 Then click **Test the connection**. On success, the button answers for example
 `Connected to Agur: 1 contract(s) found.`; otherwise it shows one of the
@@ -107,6 +103,6 @@ The email and password are stored by Gladys (the password as a secret) and only
 sent to the website of your water utility. The integration talks to nothing
 else.
 
-This integration is not affiliated with Agur, Grand Paris Sud or Eau de Paris.
+This integration is not affiliated with Agur.
 It uses the interface of their customer website, which may change without
 notice.

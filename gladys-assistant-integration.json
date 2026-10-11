@@ -21,8 +21,8 @@
         "fr": "Connexion à votre compte eau"
       },
       "description": {
-        "en": "Use the email and password you log in with on the customer website of your water utility. Each contract of the account then shows up in the Discovery tab.",
-        "fr": "Utilisez l'adresse e-mail et le mot de passe avec lesquels vous vous connectez à l'espace client de votre service d'eau. Chaque contrat du compte apparaît ensuite dans l'onglet Découverte."
+        "en": "Use the email and password you log in with on the Agur customer website. Each contract of the account then shows up in the Discovery tab.",
+        "fr": "Utilisez l'adresse e-mail et le mot de passe avec lesquels vous vous connectez à l'espace client Agur. Chaque contrat du compte apparaît ensuite dans l'onglet Découverte."
       },
       "links": [
         {
@@ -30,39 +30,6 @@
           "label": {
             "en": "Agur customer website",
             "fr": "Espace client Agur"
-          }
-        }
-      ]
-    },
-    {
-      "key": "provider",
-      "type": "select",
-      "label": {
-        "en": "Water utility",
-        "fr": "Service d'eau"
-      },
-      "required": true,
-      "default": "agur",
-      "options": [
-        {
-          "value": "agur",
-          "label": {
-            "en": "Agur (ael.agur.fr)",
-            "fr": "Agur (ael.agur.fr)"
-          }
-        },
-        {
-          "value": "grandparissud",
-          "label": {
-            "en": "Grand Paris Sud (abonne-eau.grandparissud.fr)",
-            "fr": "Grand Paris Sud (abonne-eau.grandparissud.fr)"
-          }
-        },
-        {
-          "value": "eauparis",
-          "label": {
-            "en": "Eau de Paris (agence.eaudeparis.fr)",
-            "fr": "Eau de Paris (agence.eaudeparis.fr)"
           }
         }
       ]

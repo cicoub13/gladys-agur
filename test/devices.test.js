@@ -62,12 +62,8 @@ test('the device is named after the meter and carries the contract as params', (
     { name: 'METER_SERIAL_NUMBER', value: 'I21FA123456' },
     { name: 'ADDRESS', value: '1 RUE DE LA PAIX 64100 BAYONNE' },
   ]);
-  const bare = buildDevice(
-    gladys,
-    { ...contract, meterSerial: null, address: null },
-    'Eau de Paris',
-  );
-  assert.equal(bare.name, 'Eau de Paris 1234567');
+  const bare = buildDevice(gladys, { ...contract, meterSerial: null, address: null }, 'Agur');
+  assert.equal(bare.name, 'Agur 1234567');
   assert.deepEqual(bare.params, [{ name: 'CONTRACT_NUMBER', value: '1234567' }]);
 });
 

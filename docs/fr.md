@@ -4,9 +4,6 @@ Suivez votre contrat d'eau [Agur](https://ael.agur.fr) dans Gladys : index du
 compteur, consommation entre deux relevés, consommation moyenne par jour,
 montant des factures et montant restant à payer, avec leur historique.
 
-L'intégration fonctionne aussi avec les autres services d'eau qui utilisent le
-même espace client : **Grand Paris Sud** et **Eau de Paris**.
-
 ## Prérequis
 
 - Un compte sur l'espace client de votre service d'eau, avec au moins un
@@ -18,11 +15,10 @@ même espace client : **Grand Paris Sud** et **Eau de Paris**.
 
 Ouvrez l'écran de configuration de l'intégration et renseignez :
 
-| Champ              | Description                                                    |
-| ------------------ | -------------------------------------------------------------- |
-| **Service d'eau**  | Agur (par défaut), Grand Paris Sud ou Eau de Paris.            |
-| **Adresse e-mail** | L'adresse avec laquelle vous vous connectez à l'espace client. |
-| **Mot de passe**   | Le mot de passe de l'espace client.                            |
+| Champ              | Description                                                         |
+| ------------------ | ------------------------------------------------------------------- |
+| **Adresse e-mail** | L'adresse avec laquelle vous vous connectez à l'espace client Agur. |
+| **Mot de passe**   | Le mot de passe de l'espace client.                                 |
 
 Cliquez ensuite sur **Tester la connexion**. En cas de succès, le bouton
 répond par exemple `Connecté à Agur : 1 contrat(s) trouvé(s).` ; sinon, il
@@ -112,5 +108,5 @@ L'adresse e-mail et le mot de passe sont stockés par Gladys (le mot de passe
 comme un secret) et ne sont envoyés qu'au site de votre service d'eau.
 L'intégration ne communique avec rien d'autre.
 
-Cette intégration n'est pas affiliée à Agur, Grand Paris Sud ou Eau de Paris.
+Cette intégration n'est pas affiliée à Agur.
 Elle utilise l'interface de leur espace client, qui peut changer sans préavis.

@@ -5,11 +5,14 @@
 // This module only provides defaults, trims and coerces the types, and tells
 // whether there is enough to log in.
 //
-// Agur runs the customer portal of several water utilities on the same
-// platform: each one has its own host and its own public application keys
-// (the ones the portal web page itself sends, not user secrets). Same list as
-// the Home Assistant integration this one is ported from
+// The host and the public application keys of the Agur customer portal (the
+// ones the portal web page itself sends, not user secrets), from the Home
+// Assistant integration this one is ported from
 // (https://github.com/tbouron/ha-agur, custom_components/agur/const.py).
+// ha-agur also lists Grand Paris Sud and Eau de Paris, which run the same
+// portal software. Left out on purpose (October 2026): Grand Paris Sud refuses
+// scripted requests (HTTP 412, "l'envoi de requêtes scriptées [...] est
+// interdit"), and Eau de Paris was never tested with a real account.
 // -----------------------------------------------------------------------------
 
 export const PROVIDERS = Object.freeze({
@@ -18,18 +21,6 @@ export const PROVIDERS = Object.freeze({
     host: 'ael.agur.fr',
     clientId: 'AEL-TOKEN-AGR-PRD',
     accessKey: 'XX_fr-5DjklsdMM-AGR-PRD',
-  },
-  grandparissud: {
-    name: 'Grand Paris Sud',
-    host: 'abonne-eau.grandparissud.fr',
-    clientId: 'AEL-TOKEN-GPS-PRD',
-    accessKey: 'REGPS-hc-GPS-MP-PRD',
-  },
-  eauparis: {
-    name: 'Eau de Paris',
-    host: 'agence.eaudeparis.fr',
-    clientId: 'AEL-TOKEN-EDP-PRD',
-    accessKey: 'EDP-2-hjkUyGHT-M-PRD',
   },
 });
 
