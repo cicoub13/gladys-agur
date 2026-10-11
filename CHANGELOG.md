@@ -4,6 +4,8 @@ All notable changes to the Agur integration for Gladys Assistant.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-11
+
 ### Added
 
 - First release: connect your Agur customer account, and follow each water
