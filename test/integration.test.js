@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { GladysApiError } from '@gladysassistant/integration-sdk';
+import { createFakeGladys } from '@gladysassistant/integration-sdk/testing';
 import { AgurIntegration, POLL_INTERVAL_MS, RETRY_INTERVAL_MS } from '../src/integration.js';
 import { AgurError } from '../src/agur/client.js';
 import { StatePublisher } from '../src/publisher.js';
-import { createFakeGladys } from './helpers/fakeGladys.js';
 
 const DEVICE_ID = 'ext:test:water-meter:1234567';
 const CONFIG = { provider: 'agur', username: 'me@example.com', password: 'pw' };
@@ -23,6 +24,11 @@ const contract = (overrides = {}) => ({
 });
 
 const silentLogger = { info() {}, warn() {}, error() {}, debug() {} };
+
+// A host API call rejected like a 429.
+const rateLimited = async () => {
+  throw new GladysApiError(429, 'TOO_MANY_REQUESTS', 'Too Many Requests');
+};
 
 // Manual timers: polls only run when a test says so.
 function fakeTimers() {
@@ -44,8 +50,12 @@ function fakeTimers() {
   };
 }
 
+// Every published list of discovered devices, in order.
+const discoveries = (gladys) =>
+  gladys.fake.bodies('POST', '/discovered_device').map((body) => body.devices);
+
 function setup({ devices = [{ external_id: DEVICE_ID }], snapshots } = {}) {
-  const gladys = createFakeGladys({ devices });
+  const gladys = createFakeGladys({ selector: 'test', devices });
   const timers = fakeTimers();
   const queue = [...(snapshots ?? [{ contracts: [contract()], warnings: [] }])];
   const fetches = [];
@@ -82,9 +92,9 @@ function setup({ devices = [{ external_id: DEVICE_ID }], snapshots } = {}) {
 test('without credentials: reports what is missing and does not poll', async () => {
   const { gladys, integration, timers, fetches } = setup();
   await integration.applyConfig({ username: 'me@example.com' });
-  assert.equal(gladys.calls.connectionStatuses.length, 1);
-  assert.equal(gladys.calls.connectionStatuses[0].connected, false);
-  assert.match(gladys.calls.connectionStatuses[0].message.fr, /mot de passe/);
+  assert.equal(gladys.fake.connectionStatuses.length, 1);
+  assert.equal(gladys.fake.connectionStatuses[0].connected, false);
+  assert.match(gladys.fake.connectionStatuses[0].message.fr, /mot de passe/);
   assert.equal(fetches.length, 0);
   assert.equal(timers.pending.size, 0);
   await assert.rejects(integration.testConnection(), /Enter the email/);
@@ -96,12 +106,12 @@ test('a poll reports the connection, publishes the devices and the states of cre
   await integration.applyConfig(CONFIG);
 
   assert.equal(client.config.username, 'me@example.com');
-  assert.deepEqual(gladys.calls.connectionStatuses, [{ connected: true, message: undefined }]);
-  assert.equal(gladys.calls.discovered.length, 1);
-  assert.equal(gladys.calls.discovered[0][0].external_id, DEVICE_ID);
-  assert.equal(gladys.calls.discovered[0][0].name, 'Agur I21FA123456');
+  assert.deepEqual(gladys.fake.connectionStatuses, [{ connected: true }]);
+  assert.equal(discoveries(gladys).length, 1);
+  assert.equal(discoveries(gladys)[0][0].external_id, DEVICE_ID);
+  assert.equal(discoveries(gladys)[0][0].name, 'Agur I21FA123456');
   assert.deepEqual(
-    gladys.calls.states.map((state) => state.device_feature_external_id.split(':').pop()),
+    gladys.fake.states.map((state) => state.device_feature_external_id.split(':').pop()),
     ['index', 'index', 'consumption', 'index', 'amount_due'],
   );
   assert.equal(timers.nextDelay, POLL_INTERVAL_MS);
@@ -110,8 +120,8 @@ test('a poll reports the connection, publishes the devices and the states of cre
 test('states of devices the user did not create are not sent', async () => {
   const { gladys, integration } = setup({ devices: [] });
   await integration.applyConfig(CONFIG);
-  assert.equal(gladys.calls.discovered.length, 1);
-  assert.equal(gladys.calls.states.length, 0);
+  assert.equal(discoveries(gladys).length, 1);
+  assert.equal(gladys.fake.states.length, 0);
 });
 
 test('the next poll sends the new readings, the current values and the devices again', async () => {
@@ -128,17 +138,17 @@ test('the next poll sends the new readings, the current values and the devices a
     ],
   });
   await integration.applyConfig(CONFIG);
-  gladys.calls.states.length = 0;
+  const before = gladys.fake.states.length;
 
   await integration.poll();
   // The new reading (index, consumption), then the current index and amount due.
   assert.deepEqual(
-    gladys.calls.states.map(({ state }) => state),
+    gladys.fake.states.slice(before).map(({ state }) => state),
     [125, 15, 125, -5],
   );
-  assert.equal(gladys.calls.discovered.length, 2);
+  assert.equal(discoveries(gladys).length, 2);
   // Still connected: no new status.
-  assert.equal(gladys.calls.connectionStatuses.length, 1);
+  assert.equal(gladys.fake.connectionStatuses.length, 1);
 });
 
 test('a failed poll reports the reason and retries sooner', async () => {
@@ -146,14 +156,14 @@ test('a failed poll reports the reason and retries sooner', async () => {
     snapshots: [new AgurError('timeout', 'slow')],
   });
   await integration.applyConfig(CONFIG);
-  const [status] = gladys.calls.connectionStatuses;
+  const [status] = gladys.fake.connectionStatuses;
   assert.equal(status.connected, false);
   assert.match(status.message.fr, /n'a pas répondu à temps/);
   assert.equal(timers.nextDelay, RETRY_INTERVAL_MS);
 
   // Same outage: reported once.
   await integration.poll();
-  assert.equal(gladys.calls.connectionStatuses.length, 1);
+  assert.equal(gladys.fake.connectionStatuses.length, 1);
 });
 
 test('a refused login suspends the updates until the connection is tested again', async () => {
@@ -164,7 +174,7 @@ test('a refused login suspends the updates until the connection is tested again'
     ],
   });
   await integration.applyConfig(CONFIG);
-  const [status] = gladys.calls.connectionStatuses;
+  const [status] = gladys.fake.connectionStatuses;
   assert.match(status.message.fr, /Mot de passe incorrect.*suspendues/);
   assert.equal(timers.pending.size, 0);
   assert.equal(integration.poller.stopped, true);
@@ -174,7 +184,7 @@ test('a refused login suspends the updates until the connection is tested again'
   assert.match(result.fr, /Connecté à Agur : 1 contrat\(s\) trouvé\(s\)\./);
   await new Promise((resolve) => setImmediate(resolve));
   assert.equal(fetches.length, 2);
-  assert.equal(gladys.calls.connectionStatuses.at(-1).connected, true);
+  assert.equal(gladys.fake.connectionStatuses.at(-1).connected, true);
 });
 
 test('the connection test turns an Agur error into a readable bilingual one', async () => {
@@ -189,12 +199,12 @@ test('the connection test turns an Agur error into a readable bilingual one', as
   );
 });
 
-test('Gladys-side failures during a poll are not reported as an Agur outage', async () => {
+test('Gladys-side failures during a poll are not reported as an Agur outage', async (t) => {
   const { gladys, integration } = setup();
-  gladys.failNext('publishDiscoveredDevices');
+  t.mock.method(gladys, 'publishDiscoveredDevices').mock.mockImplementationOnce(rateLimited);
   await integration.applyConfig(CONFIG);
   assert.deepEqual(
-    gladys.calls.connectionStatuses.map(({ connected }) => connected),
+    gladys.fake.connectionStatuses.map(({ connected }) => connected),
     [true],
   );
   assert.equal(integration.lastError, null);
@@ -203,10 +213,10 @@ test('Gladys-side failures during a poll are not reported as an Agur outage', as
 test('a device created after the first poll gets its full history right away', async () => {
   const { gladys, integration } = setup({ devices: [] });
   await integration.applyConfig(CONFIG);
-  assert.equal(gladys.calls.states.length, 0);
+  assert.equal(gladys.fake.states.length, 0);
 
-  const datedCount = () => gladys.calls.states.filter((state) => state.created_at).length;
-  gladys.devices = [{ external_id: DEVICE_ID }];
+  const datedCount = () => gladys.fake.states.filter((state) => state.created_at).length;
+  gladys.fake.devices = [{ external_id: DEVICE_ID }];
   await integration.handleDeviceCreated({ external_id: DEVICE_ID });
   assert.equal(datedCount(), 3);
 
@@ -221,16 +231,16 @@ test('a device created after the first poll gets its full history right away', a
   assert.equal(datedCount(), 6);
 });
 
-test('a failure while sending a new device history is logged, not thrown', async () => {
+test('a failure while sending a new device history is logged, not thrown', async (t) => {
   const { gladys, integration } = setup();
   await integration.applyConfig(CONFIG);
-  gladys.failNext('getDevices');
+  t.mock.method(gladys, 'getDevices').mock.mockImplementationOnce(rateLimited);
   await integration.handleDeviceCreated({ external_id: DEVICE_ID });
 });
 
 test('the history of the same account is not sent again after a reconnection; of another one is', async () => {
   const { gladys, integration } = setup();
-  const datedCount = () => gladys.calls.states.filter((state) => state.created_at).length;
+  const datedCount = () => gladys.fake.states.filter((state) => state.created_at).length;
   await integration.applyConfig(CONFIG);
   assert.equal(datedCount(), 3);
 
@@ -254,7 +264,7 @@ test('a poll resolving after a config change publishes nothing', async () => {
   integration.generation += 1;
   release();
   await poll;
-  assert.equal(gladys.calls.discovered.length, 0);
+  assert.equal(discoveries(gladys).length, 0);
   assert.equal(integration.snapshot, null);
 });
 
@@ -262,7 +272,7 @@ test('a scan publishes the last devices, or starts a read when there is none', a
   const { gladys, integration, fetches } = setup();
   await integration.applyConfig(CONFIG);
   await integration.handleScan();
-  assert.equal(gladys.calls.discovered.length, 2);
+  assert.equal(discoveries(gladys).length, 2);
 
   integration.snapshot = null;
   integration.lastError = { en: 'Agur cannot be reached.', fr: 'Agur est injoignable.' };

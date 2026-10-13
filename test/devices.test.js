@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createFakeGladys } from '@gladysassistant/integration-sdk/testing';
 import { DEVICE_TYPE, FEATURE_KEYS, buildDevice, buildStates, idsOf } from '../src/devices.js';
-import { createFakeGladys } from './helpers/fakeGladys.js';
 
-const gladys = createFakeGladys();
+const gladys = createFakeGladys({ selector: 'test' });
 
 const contract = {
   id: '1234567',
