@@ -1,11 +1,14 @@
 # Agur
 
+## Overview
+
 Follow your [Agur](https://ael.agur.fr) water contract in Gladys: meter index,
 consumption between two readings, average daily consumption, invoice amounts
 and amount still due, with their history.
 
-## Requirements
+## Prerequisites
 
+- Gladys 5.3 or later.
 - An account on the customer website of your water utility, with at least one
   contract.
 - Internet access on the machine running Gladys: the data is read on the
@@ -70,6 +73,16 @@ reading. They therefore show "No recent value" in a "Devices" box: follow them
 with a **chart** over the last year (bars for the consumption, a line for the
 average).
 
+## Privacy
+
+The email and password are stored by Gladys (the password as a secret) and only
+sent to the website of your water utility. The integration talks to nothing
+else.
+
+This integration is not affiliated with Agur.
+It uses the interface of their customer website, which may change without
+notice.
+
 ## Troubleshooting
 
 Error messages show in the connection status of the integration and under the
@@ -88,21 +101,19 @@ the configuration or click **Test the connection**.
 **"Agur did not answer in time", "Agur answered with an error (HTTP …)" or
 "Agur sent an unexpected answer".** The website of the water utility is slow or
 under maintenance. The integration tries again on its own; if it lasts several
-days, check the integration logs and report the issue.
+days, check the integration logs (**Logs** tab of the integration page in
+Gladys) and report the issue.
 
 **"Agur cannot be reached."** Check the internet access of the machine running
 Gladys.
 
+**"Agur refused the session right after logging in."** The login worked, but
+the website refused the next request. The integration tries again on its own;
+you can also click **Test the connection** a bit later.
+
+**"Unexpected error while talking to Agur."** Check the integration logs
+(**Logs** tab of the integration page in Gladys) and report the issue.
+
 **A contract is missing from the Discovery tab.** Check that it is visible on
 the customer website with the same account, then click **Test the
 connection**: the device list is refreshed right after.
-
-## Privacy
-
-The email and password are stored by Gladys (the password as a secret) and only
-sent to the website of your water utility. The integration talks to nothing
-else.
-
-This integration is not affiliated with Agur.
-It uses the interface of their customer website, which may change without
-notice.
