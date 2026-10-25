@@ -8,8 +8,8 @@ running in its own container, on the JavaScript SDK
 and ported from the Home Assistant integration
 [tbouron/ha-agur](https://github.com/tbouron/ha-agur).
 
-> **Requires Gladys ≥ 4.86.0.** `gladys_version` in the manifest declares that
-> floor.
+> **Requires Gladys ≥ 5.3.0.** `gladys_version` in the manifest declares that
+> floor: the catalog `countries` field (France only) needs it.
 
 ## Features
 
@@ -79,7 +79,7 @@ npx github:GladysAssistant/integration-store .
 
 ### Run locally
 
-Register the integration in development mode in a Gladys 4.86+ server to get
+Register the integration in development mode in a Gladys 5.3+ server to get
 its token and selector, then:
 
 ```bash

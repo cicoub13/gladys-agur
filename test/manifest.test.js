@@ -2,8 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, statSync } from 'node:fs';
 
-// Device categories in the store catalog need Gladys 4.86.
-const MIN_GLADYS_VERSION = '>=4.86.0';
+// The catalog `countries` filter (Agur is a French water utility)
+// needs Gladys 5.3: older releases reject the unknown field.
+const MIN_GLADYS_VERSION = '>=5.3.0';
 // Store limit of the cover image (800 x 534 PNG or JPEG).
 const MAX_COVER_BYTES = 150 * 1024;
 // INTEGRATION_CATALOG_CATEGORIES in the core. The manifest schema has no enum
@@ -60,6 +61,10 @@ test('the catalog categories are declared and come from the core vocabulary', ()
   for (const category of manifest.categories) {
     assert.ok(CATALOG_CATEGORIES.includes(category), `unknown catalog category: ${category}`);
   }
+});
+
+test('the catalog shows the integration to French instances only', () => {
+  assert.deepEqual(manifest.countries, ['FR']);
 });
 
 test('no permission is requested that the integration does not use', () => {

@@ -4,6 +4,12 @@ All notable changes to the Agur integration for Gladys Assistant.
 
 ## [Unreleased]
 
+### Changed
+
+- **Requires Gladys 5.3 or later.** The integration is now listed in the catalog
+  categories of French Gladys instances only (Agur is a French water
+  utility); it stays findable through the catalog search everywhere.
+
 ## [0.1.2] - 2026-10-13
 
 ### Changed
