@@ -1,11 +1,14 @@
 # Agur
 
+## Présentation
+
 Suivez votre contrat d'eau [Agur](https://ael.agur.fr) dans Gladys : index du
 compteur, consommation entre deux relevés, consommation moyenne par jour,
 montant des factures et montant restant à payer, avec leur historique.
 
 ## Prérequis
 
+- Gladys 5.3 ou supérieur.
 - Un compte sur l'espace client de votre service d'eau, avec au moins un
   contrat.
 - Une connexion internet sur la machine qui fait tourner Gladys : les données
@@ -74,6 +77,15 @@ gardent une valeur par relevé. Elles s'affichent donc « Pas de valeur récente
 dans un bloc « Appareils » : suivez-les avec un **graphique** sur l'année
 (barres pour la consommation, courbe pour la moyenne).
 
+## Confidentialité
+
+L'adresse e-mail et le mot de passe sont stockés par Gladys (le mot de passe
+comme un secret) et ne sont envoyés qu'au site de votre service d'eau.
+L'intégration ne communique avec rien d'autre.
+
+Cette intégration n'est pas affiliée à Agur.
+Elle utilise l'interface de leur espace client, qui peut changer sans préavis.
+
 ## Dépannage
 
 Les messages d'erreur s'affichent dans l'état de connexion de l'intégration et
@@ -93,20 +105,20 @@ configuration ou cliquez sur **Tester la connexion**.
 **« Agur n'a pas répondu à temps », « Agur a répondu par une erreur (HTTP …) »
 ou « Agur a envoyé une réponse inattendue ».** Le site du service d'eau est lent
 ou en maintenance. L'intégration réessaie toute seule ; si cela dure plusieurs
-jours, consultez les journaux de l'intégration et signalez le problème.
+jours, consultez les journaux de l'intégration (onglet **Logs** de la page de
+l'intégration dans Gladys) et signalez le problème.
 
 **« Agur est injoignable. »** Vérifiez la connexion internet de la machine qui
 fait tourner Gladys.
 
+**« Agur a refusé la session juste après la connexion. »** La connexion a
+réussi, mais le site a refusé la requête suivante. L'intégration réessaie toute
+seule ; vous pouvez aussi cliquer sur **Tester la connexion** un peu plus tard.
+
+**« Erreur inattendue en communiquant avec Agur. »** Consultez les journaux de
+l'intégration (onglet **Logs** de la page de l'intégration dans Gladys) et
+signalez le problème.
+
 **Un contrat n'apparaît pas dans l'onglet Découverte.** Vérifiez qu'il est
 visible sur l'espace client avec le même compte, puis cliquez sur **Tester la
 connexion** : la liste des appareils est mise à jour juste après.
-
-## Confidentialité
-
-L'adresse e-mail et le mot de passe sont stockés par Gladys (le mot de passe
-comme un secret) et ne sont envoyés qu'au site de votre service d'eau.
-L'intégration ne communique avec rien d'autre.
-
-Cette intégration n'est pas affiliée à Agur.
-Elle utilise l'interface de leur espace client, qui peut changer sans préavis.
