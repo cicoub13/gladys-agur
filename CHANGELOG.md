@@ -4,6 +4,8 @@ All notable changes to the Agur integration for Gladys Assistant.
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-10-28
+
 ### Changed
 
 - **Requires Gladys 5.3 or later.** The integration is now listed in the catalog
